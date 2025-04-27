@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SnippetController;
+use App\Http\Controllers\HealthCheckController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,3 +24,5 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::get('/snippets', [SnippetController::class, 'index'])->name('snippets.index');
 Route::get('/snippets/create', [SnippetController::class, 'create'])->name('snippets.create');
+
+Route::get('/health', [HealthCheckController::class, 'check']);
