@@ -23,6 +23,10 @@ class SnippetResource extends JsonResource
             'user' => $this->whenLoaded('user', function () {
                 return new UserResource($this->user);
             }),
+            'comments' => CommentResource::collection($this->whenLoaded('comments')),
+            'likes' => LikeResource::collection($this->whenLoaded('likes')),
+            'likes_count' => $this->when($this->likes_count !== null, $this->likes_count),
+            'comments_count' => $this->when($this->comments_count !== null, $this->comments_count),
         ];
     }
 }

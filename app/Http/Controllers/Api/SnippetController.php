@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Comment;
 use App\Snippet;
 use Illuminate\Http\Request;
+use App\Enums\SnippetLanguage;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CommentResource;
 use App\Http\Resources\SnippetResource;
@@ -13,7 +14,7 @@ class SnippetController extends Controller
 {
 	public function index(Request $request)
 	{
-		$query = Snippet::with(['user', 'comments', 'likes']);
+		$query = Snippet::with(['user', 'comments.user', 'likes'])->withCount(['comments', 'likes']);
 
 		if ($request->has('language') && $request->input('language') !== '') {
 			$query->where('language', $request->input('language'));
@@ -29,7 +30,7 @@ class SnippetController extends Controller
 		$validated = $request->validate([
 			'title' => 'required|string|max:255',
 			'code' => 'required|string',
-			'language' => 'required|string|in:php,html,css,javascript,python,ruby,java,csharp,go,swift',
+			'language' => 'required|string|in:' . implode(',', SnippetLanguage::all()),
 		]);
 
 		$snippet = Snippet::create([
