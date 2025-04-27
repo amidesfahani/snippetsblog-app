@@ -23,6 +23,11 @@ DB_PASSWORD=secret
 docker-compose exec app php artisan migrate
 ```
 
+### Create Test Data
+```bash
+docker-compose exec app php artisan db:seed
+```
+
 #### PHP Container
 ```bash
 docker-compose exec app bash
