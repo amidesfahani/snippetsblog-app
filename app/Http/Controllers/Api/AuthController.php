@@ -63,8 +63,11 @@ class AuthController  extends Controller
 
     public function refresh()
     {
+		/** @var Illuminate\Auth\AuthManager */
+		$auth = auth();
+		
 		return response()->json([
-            'token' => auth()->refresh(),
+            'token' => $auth->refresh(),
         ]);
     }
 }
