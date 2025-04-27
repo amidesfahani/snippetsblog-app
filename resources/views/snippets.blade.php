@@ -72,7 +72,7 @@
         </div>
 
         <div id="addSnippetModal"
-            class="fixed inset-0 z-10 flex hidden items-center justify-center bg-black bg-opacity-50">
+            class="fixed inset-0 z-10 flex hidden items-center justify-center bg-black bg-opacity-50 max-h-screen overflow-y-auto">
             <div class="w-full max-w-2xl rounded-lg bg-white p-6">
                 <h2 class="mb-4 text-xl font-bold">Add New Snippet</h2>
                 <form id="addSnippetForm">

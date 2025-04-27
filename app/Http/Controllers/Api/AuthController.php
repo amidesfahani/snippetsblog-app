@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\User;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
@@ -20,20 +21,34 @@ class AuthController  extends Controller
 		]);
 
 		if ($validator->fails()) {
+
+			Log::warning('Register validation failed', [
+				'errore' => $validator->errors(),
+			]);
+
 			return response()->json($validator->errors(), 422);
 		}
 
-		$user = User::create([
-			'username' => $request->username,
-			'password' => Hash::make($request->password),
-		]);
+		try {
+			$user = User::create([
+				'username' => $request->username,
+				'password' => Hash::make($request->password),
+			]);
 
-		$token = JWTAuth::fromUser($user);
+			$token = JWTAuth::fromUser($user);
 
-		return response()->json([
-			'user' => UserResource::make($user),
-			'token' => $token,
-		], 201);
+			return response()->json([
+				'user' => UserResource::make($user),
+				'token' => $token,
+			], 201);
+		} catch (\Throwable $e) {
+			Log::error('Registration failed', [
+				'error' => $e->getMessage(),
+				'trace' => $e->getTraceAsString()
+			]);
+
+			return response()->json(['message' => 'Server Error'], 500);
+		}
 	}
 
 	public function login(Request $request)
@@ -53,21 +68,21 @@ class AuthController  extends Controller
 	{
 		return response()->json(UserResource::make(auth()->user()));
 	}
-	
+
 	public function logout()
-    {
-        auth()->logout();
+	{
+		auth()->logout();
 
-        return response()->json(['message' => 'Successfully logged out']);
-    }
+		return response()->json(['message' => 'Successfully logged out']);
+	}
 
-    public function refresh()
-    {
+	public function refresh()
+	{
 		/** @var Illuminate\Auth\AuthManager */
 		$auth = auth();
-		
+
 		return response()->json([
-            'token' => $auth->refresh(),
-        ]);
-    }
+			'token' => $auth->refresh(),
+		]);
+	}
 }

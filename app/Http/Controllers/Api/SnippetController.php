@@ -6,6 +6,7 @@ use App\Comment;
 use App\Snippet;
 use Illuminate\Http\Request;
 use App\Enums\SnippetLanguage;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CommentResource;
 use App\Http\Resources\SnippetResource;
@@ -33,12 +34,21 @@ class SnippetController extends Controller
 			'language' => 'required|string|in:' . implode(',', SnippetLanguage::all()),
 		]);
 
-		$snippet = Snippet::create([
-			'title' => strip_tags($validated['title']),
-			'code' => $validated['code'],
-			'language' => $validated['language'],
-			'user_id' => auth()->id(), // شناسه کاربر وارد شده
-		]);
+		try {
+			$snippet = Snippet::create([
+				'title' => strip_tags($validated['title']),
+				'code' => $validated['code'],
+				'language' => $validated['language'],
+				'user_id' => auth()->id(),
+			]);
+		} catch (\Exception $e) {
+			Log::error('Failed to create snippet', [
+				'error' => $e->getMessage(),
+				'trace' => $e->getTraceAsString()
+			]);
+
+			return response()->json(['message' => 'Server Error'], 500);
+		}
 
 		return response()->json(SnippetResource::make($snippet), 201);
 	}
@@ -49,18 +59,27 @@ class SnippetController extends Controller
 			'comment' => 'required|string|max:1000',
 		]);
 
-		$snippet = Snippet::findOrFail($id);
+		try {
+			$snippet = Snippet::findOrFail($id);
 
-		$comment = new Comment();
-		$comment->snippet_id = $snippet->id;
-		$comment->user_id = auth()->id();
-		$comment->comment = $validated['comment'];
-		$comment->save();
+			$comment = new Comment();
+			$comment->snippet_id = $snippet->id;
+			$comment->user_id = auth()->id();
+			$comment->comment = $validated['comment'];
+			$comment->save();
 
-		return response()->json([
-			'message' => 'Comment added successfully',
-			'comment' => CommentResource::make($comment),
-		], 201);
+			return response()->json([
+				'message' => 'Comment added successfully',
+				'comment' => CommentResource::make($comment),
+			], 201);
+		} catch (\Throwable $e) {
+			Log::error('Failed to create comment', [
+				'error' => $e->getMessage(),
+				'trace' => $e->getTraceAsString()
+			]);
+
+			return response()->json(['message' => 'Server Error'], 500);
+		}
 	}
 
 	public function storeLike($id)
