@@ -16,6 +16,15 @@ class Snippet extends Model
         'created_at',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($model) {
+            $model->language = strtolower($model->language);
+        });
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
