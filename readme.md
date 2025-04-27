@@ -18,8 +18,18 @@ DB_USERNAME=laravel
 DB_PASSWORD=secret
 ```
 
-#### PHP Container
+### Run Migrations
+```bash
+docker-compose exec app php artisan migrate
+```
 
+#### PHP Container
 ```bash
 docker-compose exec app bash
+```
+
+#### Permissions
+```bash
+sudo chown -R $USER:$USER .
+docker-compose exec app chown -R www-data:www-data /var/www/html/storage
 ```
