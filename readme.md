@@ -16,6 +16,10 @@ DB_PORT=3306
 DB_DATABASE=laravel
 DB_USERNAME=laravel
 DB_PASSWORD=secret
+
+REDIS_HOST=redis
+REDIS_PASSWORD=null
+REDIS_PORT=6379
 ```
 
 ### Run Migrations
@@ -38,3 +42,7 @@ docker-compose exec app bash
 sudo chown -R $USER:$USER .
 docker-compose exec app chown -R www-data:www-data /var/www/html/storage
 ```
+
+## Pages
+- Login http://localhost:8000/login
+- Snippets http://localhost:8000/snippets

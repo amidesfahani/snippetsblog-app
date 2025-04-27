@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Model;
 
 class Snippet extends Model
@@ -22,6 +23,14 @@ class Snippet extends Model
 
         static::saving(function ($model) {
             $model->language = strtolower($model->language);
+        });
+
+        static::saved(function ($model) {
+            Cache::tags('snippets')->flush();
+        });
+    
+        static::deleted(function ($model) {
+            Cache::tags('snippets')->flush();
         });
     }
 

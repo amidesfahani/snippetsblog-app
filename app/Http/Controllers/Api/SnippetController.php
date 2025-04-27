@@ -10,20 +10,28 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CommentResource;
 use App\Http\Resources\SnippetResource;
+use Illuminate\Support\Facades\Cache;
 
 class SnippetController extends Controller
 {
 	public function index(Request $request)
 	{
-		$query = Snippet::with(['user', 'comments.user', 'likes'])->withCount(['comments', 'likes']);
+		$cacheKey = 'snippets_' . md5(serialize($request->all()));
+        $expiration = now()->addMinutes(30);
 
-		if ($request->has('language') && $request->input('language') !== '') {
-			$query->where('language', $request->input('language'));
-		}
+		return Cache::tags(['snippets'])->remember($cacheKey, $expiration, function () use ($request) {
+			$query = Snippet::with(['user', 'comments.user', 'likes'])->withCount(['comments', 'likes']);
 
-		$snippets = $query->paginate($request->get('perpage', 5));
+			if ($request->has('language') && $request->input('language') !== '') {
+				$query->where('language', $request->input('language'));
+			}
 
-		return SnippetResource::collection($snippets);
+			$snippets = $query->paginate($request->get('perpage', 5));
+
+			// sleep(3);
+
+			return SnippetResource::collection($snippets);
+		});
 	}
 
 	public function store(Request $request)

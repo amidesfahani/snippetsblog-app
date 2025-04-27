@@ -38,6 +38,16 @@ services:
       - dbdata:/var/lib/mysql
     networks:
       - app-network
+  
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    networks:
+      - app-network
 
 networks:
   app-network:
@@ -45,3 +55,4 @@ networks:
 
 volumes:
   dbdata:
+  redisdata:
