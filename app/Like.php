@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Model;
 
 class Like extends Model
@@ -12,6 +13,19 @@ class Like extends Model
         'user_id',
         'snippet_id',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($model) {
+            Cache::tags(['snippets'])->flush();
+        });
+    
+        static::deleted(function ($model) {
+            Cache::tags(['snippets'])->flush();
+        });
+    }
 
     public function snippet()
     {

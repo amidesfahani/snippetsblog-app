@@ -20,6 +20,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/clike/clike.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/ruby/ruby.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/go/go.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-tagsinput/1.3.6/jquery.tagsinput.min.js"></script>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/jquery-tagsinput/1.3.6/jquery.tagsinput.min.css" />
     <style>
         .CodeMirror {
             height: auto;
@@ -72,8 +76,8 @@
         </div>
 
         <div id="addSnippetModal"
-            class="fixed inset-0 z-10 flex hidden items-center justify-center bg-black bg-opacity-50 max-h-screen overflow-y-auto">
-            <div class="w-full max-w-2xl rounded-lg bg-white p-6">
+            class="fixed inset-0 z-10 flex hidden items-center justify-center bg-black bg-opacity-50">
+            <div class="w-full max-w-2xl rounded-lg bg-white p-6 overflow-y-auto max-h-[600px]">
                 <h2 class="mb-4 text-xl font-bold">Add New Snippet</h2>
                 <form id="addSnippetForm">
                     <div class="mb-4">
@@ -94,6 +98,11 @@
                         <label for="snippetCode" class="mb-2 block text-gray-700">Code</label>
                         <textarea id="snippetCode" name="code" rows="10"
                             class="w-full rounded-md border border-gray-300 px-3 py-2 font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label for="snippetTags" class="mb-2 block text-gray-700">Tags (comma separated)</label>
+                        <input type="text" id="snippetTags" name="tags"
+                            class="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div class="flex justify-end space-x-3">
                         <button type="button" id="cancelAddSnippet"
@@ -128,6 +137,13 @@
                 }
             });
 
+            $('#snippetTags').tagsInput({
+                'defaultText': 'add a tag',
+                'height': 'auto',
+                'width': '100%',
+                'delimiter': [',']
+            });
+
             function loadSnippets(page = 1, language = '') {
                 $.ajax({
                     url: '/api/snippets?page=' + page + (language ? '&language=' + language : ''),
@@ -157,8 +173,7 @@
                 }
 
                 snippets.forEach(snippet => {
-                    const languageLabel = snippet.language.charAt(0).toUpperCase() + snippet.language.slice(
-                        1);
+                    const tagsHtml = snippet.tags.map(tag => `<span class="bg-gray-200 px-2 py-1 rounded-md text-sm mr-1">#${tag}</span>`).join('');
                     const snippetHtml = `
                         <div class="overflow-hidden rounded-lg bg-white shadow-md">
                             <div class="bg-blue-600 p-4 text-white">
@@ -169,7 +184,7 @@
                                     <div class="mb-2 flex items-start justify-between">
                                         <h3 class="text-lg font-medium text-gray-800">${snippet.title}</h3>
                                         <span class="bg-${getLanguageColor(snippet.language)}-100 text-${getLanguageColor(snippet.language)}-800 rounded-full px-2 py-1 text-xs">
-                                            ${languageLabel}
+                                            ${getLanguageLabel(snippet.language)}
                                         </span>
                                     </div>
                                     <div class="mb-3">
@@ -191,6 +206,7 @@
                                             <span>${new Date(snippet.created_at).toLocaleDateString()}</span>
                                         </div>
                                     </div>
+                                    <div class="mt-3">${tagsHtml}</div>
                                     <div class="mt-3 border-t border-gray-200 pt-3">
                                         <div class="mb-2 flex items-center justify-between">
                                             <h4 class="text-sm font-medium text-gray-700">Comments (${snippet.comments_count})</h4>
@@ -253,21 +269,26 @@
                 html += '<div class="flex space-x-2">';
 
                 if (meta.current_page > 1) {
-                    html += `<button class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-100 transition duration-200 pagination-btn" data-page="1">First</button>`;
+                    html +=
+                        `<button class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-100 transition duration-200 pagination-btn" data-page="1">First</button>`;
                 }
 
                 if (links.prev) {
-                    html += `<button class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-100 transition duration-200 pagination-btn" data-page="${meta.current_page - 1}">Previous</button>`;
+                    html +=
+                        `<button class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-100 transition duration-200 pagination-btn" data-page="${meta.current_page - 1}">Previous</button>`;
                 }
 
-                html += `<button class="px-3 py-1 border bg-blue-600 text-white rounded-md cursor-default" disabled>${meta.current_page}</button>`;
+                html +=
+                    `<button class="px-3 py-1 border bg-blue-600 text-white rounded-md cursor-default" disabled>${meta.current_page}</button>`;
 
                 if (links.next) {
-                    html += `<button class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-100 transition duration-200 pagination-btn" data-page="${meta.current_page + 1}">Next</button>`;
+                    html +=
+                        `<button class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-100 transition duration-200 pagination-btn" data-page="${meta.current_page + 1}">Next</button>`;
                 }
 
                 if (meta.current_page < meta.last_page) {
-                    html += `<button class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-100 transition duration-200 pagination-btn" data-page="${meta.last_page}">Last</button>`;
+                    html +=
+                        `<button class="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-100 transition duration-200 pagination-btn" data-page="${meta.last_page}">Last</button>`;
                 }
 
                 html += '</div>';
@@ -278,6 +299,7 @@
 
             const SnippetLanguageColors = @json(\App\Enums\SnippetLanguage::colors());
             const SnippetLanguageModes = @json(\App\Enums\SnippetLanguage::codeMirrorModes());
+            const SnippetLanguageLabels = @json(\App\Enums\SnippetLanguage::labels());
 
             function getLanguageColor(language) {
                 return SnippetLanguageColors[language.toLowerCase()] || 'gray';
@@ -285,6 +307,10 @@
 
             function getCodeMirrorMode(language) {
                 return SnippetLanguageModes[language.toLowerCase()] || 'text/plain';
+            }
+
+            function getLanguageLabel(language) {
+                return SnippetLanguageLabels[language.toLowerCase()] || language;
             }
 
             $('#languageFilter').change(function() {
@@ -300,19 +326,25 @@
 
             $('#addSnippetBtn').click(function() {
                 $('#addSnippetModal').removeClass('hidden');
+                $('body').addClass('overflow-y-hidden');
             });
 
             $('#cancelAddSnippet').click(function() {
                 $('#addSnippetModal').addClass('hidden');
+                $('body').removeClass('overflow-y-hidden');
                 $('#addSnippetForm')[0].reset();
             });
 
             $('#addSnippetForm').submit(function(e) {
                 e.preventDefault();
+                
+                const tags = $('#snippetTags').val().split(',').map(tag => tag.trim()).filter(tag => tag);
+
                 const formData = {
                     title: $('#snippetTitle').val(),
                     language: $('#snippetLanguage').val(),
-                    code: $('#snippetCode').val()
+                    code: $('#snippetCode').val(),
+                    tags: tags.length ? tags.join(',') : '',
                 };
 
                 $.ajax({
@@ -322,7 +354,7 @@
                     success: function(response) {
                         $('#addSnippetModal').addClass('hidden');
                         $('#addSnippetForm')[0].reset();
-						loadSnippets();
+                        loadSnippets();
                     },
                     error: function(xhr) {
                         if (xhr.status === 401) {
@@ -347,9 +379,9 @@
                         comment
                     },
                     success: function(response) {
-						const page = $(this).data('page');
-                		const language = $('#languageFilter').val();
-                		loadSnippets(page, language);
+                        const page = $(this).data('page');
+                        const language = $('#languageFilter').val();
+                        loadSnippets(page, language);
                     },
                     error: function(xhr) {
                         if (xhr.status === 401) {
@@ -370,8 +402,8 @@
                     method: 'POST',
                     success: function(response) {
                         const page = $(this).data('page');
-                		const language = $('#languageFilter').val();
-                		loadSnippets(page, language);
+                        const language = $('#languageFilter').val();
+                        loadSnippets(page, language);
                     },
                     error: function(xhr) {
                         if (xhr.status === 401) {

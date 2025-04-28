@@ -20,6 +20,7 @@ class SnippetResource extends JsonResource
             'code' => $this->code,
             'language' => $this->language,
             'created_at' => $this->created_at,
+            'tags' => $this->tags->pluck('name'),
             'user' => $this->whenLoaded('user', function () {
                 return new UserResource($this->user);
             }),

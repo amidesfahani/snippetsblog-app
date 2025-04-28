@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Database\Eloquent\Model;
 
 class Comment extends Model
@@ -14,6 +15,19 @@ class Comment extends Model
         'comment',
         'created_at',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        
+        static::saved(function ($model) {
+            Cache::tags(['snippets'])->flush();
+        });
+    
+        static::deleted(function ($model) {
+            Cache::tags(['snippets'])->flush();
+        });
+    }
 
     public function snippet()
     {

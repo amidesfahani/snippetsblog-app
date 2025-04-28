@@ -1,8 +1,11 @@
 <?php
 
+use App\Tag;
+use App\User;
+use App\Snippet;
 use Faker\Generator as Faker;
 
-$factory->define(App\Snippet::class, function (Faker $faker) {
+$factory->define(Snippet::class, function (Faker $faker) {
 	$languageCodeMap = [
 		'PHP' => [
 			'<?php echo "Hello World"; ?>',
@@ -53,7 +56,7 @@ $factory->define(App\Snippet::class, function (Faker $faker) {
 
 	return [
 		'user_id' => function () {
-			return factory(App\User::class)->create()->id;
+			return factory(User::class)->create()->id;
 		},
 		'title' => $faker->sentence,
 		'code' => $code,

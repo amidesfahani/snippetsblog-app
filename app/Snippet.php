@@ -26,11 +26,11 @@ class Snippet extends Model
         });
 
         static::saved(function ($model) {
-            Cache::tags('snippets')->flush();
+            Cache::tags(['snippets'])->flush();
         });
     
         static::deleted(function ($model) {
-            Cache::tags('snippets')->flush();
+            Cache::tags(['snippets'])->flush();
         });
     }
 
@@ -47,5 +47,10 @@ class Snippet extends Model
     public function likes()
     {
         return $this->hasMany(Like::class);
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
     }
 }

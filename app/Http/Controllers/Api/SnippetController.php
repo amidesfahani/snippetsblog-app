@@ -2,22 +2,23 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Tag;
 use App\Comment;
 use App\Snippet;
 use Illuminate\Http\Request;
 use App\Enums\SnippetLanguage;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Cache;
 use App\Http\Resources\CommentResource;
 use App\Http\Resources\SnippetResource;
-use Illuminate\Support\Facades\Cache;
 
 class SnippetController extends Controller
 {
 	public function index(Request $request)
 	{
 		$cacheKey = 'snippets_' . md5(serialize($request->all()));
-        $expiration = now()->addMinutes(30);
+		$expiration = now()->addMinutes(30);
 
 		return Cache::tags(['snippets'])->remember($cacheKey, $expiration, function () use ($request) {
 			$query = Snippet::with(['user', 'comments.user', 'likes'])->withCount(['comments', 'likes']);
@@ -40,6 +41,7 @@ class SnippetController extends Controller
 			'title' => 'required|string|max:255',
 			'code' => 'required|string',
 			'language' => 'required|string|in:' . implode(',', SnippetLanguage::all()),
+			'tags' => 'nullable|string',
 		]);
 
 		try {
@@ -49,6 +51,15 @@ class SnippetController extends Controller
 				'language' => $validated['language'],
 				'user_id' => auth()->id(),
 			]);
+
+			if ($request->has('tags')) {
+				$tags = explode(',', $request->input('tags'));
+				foreach ($tags as $tagName) {
+					$tagName = trim($tagName);
+					$tag = Tag::firstOrCreate(['name' => $tagName]);
+					$snippet->tags()->attach($tag);
+				}
+			}
 		} catch (\Exception $e) {
 			Log::error('Failed to create snippet', [
 				'error' => $e->getMessage(),
