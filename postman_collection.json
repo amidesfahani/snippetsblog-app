@@ -1,0 +1,460 @@
+{
+	"info": {
+		"_postman_id": "b0d9a757-769b-4ce1-a478-c4e3da707b97",
+		"name": "V1",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40472658"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"pm.environment.set(\"access_token\", jsonData.token);\r",
+									"pm.environment.set(\"username\", jsonData.user.username);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "{{$randomUserName}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/api/auth/register",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"var token = jsonData.token;\r",
+									"console.log(token);\r",
+									"pm.environment.set(\"access_token\", token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/api/auth/login",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{url}}/api/auth/me",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"var token = jsonData.token;\r",
+									"pm.environment.set(\"access_token\", token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{url}}/api/auth/refresh",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"access_token\", null);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{url}}/api/auth/logout",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Snippets",
+			"item": [
+				{
+					"name": "Index",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/snippets/?language=php",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"snippets",
+								""
+							],
+							"query": [
+								{
+									"key": "language",
+									"value": "php"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "My Snippet",
+									"type": "text"
+								},
+								{
+									"key": "language",
+									"value": "php",
+									"type": "text"
+								},
+								{
+									"key": "code",
+									"value": "<?php\n\nnamespace App\\Http\\Controllers\\Api;\n\nuse App\\Snippet;\nuse Illuminate\\Http\\Request;\nuse App\\Http\\Controllers\\Controller;\nuse App\\Http\\Resources\\SnippetResource;\n\nclass SnippetController extends Controller\n{\n\tpublic function index()\n    {\n\t\t$snippets = Snippet::with(['user', 'comments', 'likes'])->paginate(5);\n\n        return SnippetResource::collection($snippets);\n    }\n\n    public function store(Request $request)\n    {\n\t\t$validated = $request->validate([\n\t\t\t'title' => 'required|string|max:255',\n\t\t\t'code' => 'required|string',\n\t\t\t'language' => 'required|string|in:php,html,css,javascript,python,ruby,java,csharp,go,swift',\n\t\t]);\n\n\t\t$snippet = Snippet::create([\n\t\t\t'title' => strip_tags($validated['title']),\n\t\t\t'code' => $validated['code'],\n\t\t\t'language' => $validated['language'],\n\t\t\t'user_id' => auth()->id(), // شناسه کاربر وارد شده\n\t\t]);\n\n        return response()->json(SnippetResource::make($snippet), 201);\n    }\n}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/api/snippets/",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"snippets",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Post a comment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "comment",
+									"value": "{{$randomCatchPhrase}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/api/snippets/:snippet/comments",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"snippets",
+								":snippet",
+								"comments"
+							],
+							"variable": [
+								{
+									"key": "snippet",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Like it",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "comment",
+									"value": "{{$randomCatchPhrase}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{url}}/api/snippets/:snippet/like",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"snippets",
+								":snippet",
+								"like"
+							],
+							"variable": [
+								{
+									"key": "snippet",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{access_token}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"pm.request.headers.upsert({\r",
+					"    key: 'accept',\r",
+					"    value: 'application/json'\r",
+					"});"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
