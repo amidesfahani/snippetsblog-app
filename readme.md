@@ -44,6 +44,11 @@ sudo chown -R $USER:$USER .
 docker-compose exec app chown -R www-data:www-data /var/www/html/storage
 ```
 
+## Tests
+```bash
+docker-compose exec app bash -c "vendor/bin/phpunit"
+```
+
 ## Pages
 - Login http://localhost:8000/login
 - Snippets http://localhost:8000/snippets
